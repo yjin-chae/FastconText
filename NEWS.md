@@ -9,4 +9,4 @@
 * Bootstrap and permutation summaries in `get_nns()`, `get_cos_sim()`, `get_ncs()`,
   `get_nns_ratio()`, `contrast_nns()` and `bootstrap_nns()` are computed in one pass.
 * Optional Apple GPU (Metal) engine on macOS; a multi-threaded double-precision CPU engine
-  on Linux and macOS.
+  on Linux and macOS (and possibly Windows, but not tested!).
