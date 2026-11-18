@@ -71,7 +71,7 @@ The table shows the largest absolute difference across all numeric outputs.
 | `get_nns()`: 100 bootstraps | 3.3e-16 | 4.0e-07 |
 | `get_cos_sim()`: 100 bootstraps | 1.7e-16 | 4.4e-08 |
 
-Regressions, the jackknife estimator, and the ALC transform are always computed in double precision using CPU.
+Regressions, the jackknife estimator, and the ALC transform are always computed in double precision.
 On the GPU, the similarity calculations in the bootstrap and permutation steps use single precision.
 Because of the lower precision, these outputs differ slightly more from conText, but
 by no more than about 1e-6. The GPU engine uses single precision because Apple GPUs do not natively support float64.
@@ -132,8 +132,9 @@ FastconText implements methods developed by other researchers. Please cite the o
 
 ## Code provenance
 
-FastconText is a modified copy of conText 3.0.1, developed, maintained, and contributed by
-Pedro L. Rodriguez, Arthur Spirling, Brandon Stewart, Sofia Avila, and Christopher Barrie.
+FastconText is a modified copy of conText 3.0.1, which was developed by Pedro L. Rodriguez,
+Arthur Spirling, Brandon Stewart, and Sofia Avila (maintainer), with contributions from
+Christopher Barrie.
 
 **Reused without changes:** Most of conText's R code, including tokenization, context
 extraction, and the `conText` object classes, as well as its example data and help pages.
@@ -143,7 +144,7 @@ extraction, and the `conText` object classes, as well as its example data and he
 computation to the new engine. The original code is kept and still runs with
 `options(FastconText.backend = "original")` and in fallback cases.
 
-**Newly written:** The closed-form linear algebra for embedding regression, jackknife and permutation test,
+**Newly written:** The closed-form linear algebra for embedding regression, jackknife and permutation test
 (`R/fast_regression.R`), the bootstrap and permutation computations of the similarity functions (`R/fast_bootstrap.R`),
 engine selection (`R/backend.R`), the C++ CPU engine and the Apple GPU engine (`src/`), the
 build scripts, the tests (`tests/`), and the benchmarks (`benchmarks/`).
