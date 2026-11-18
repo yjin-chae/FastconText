@@ -132,7 +132,7 @@ FastconText implements methods developed by other researchers. Please cite the o
 
 ## Code provenance
 
-FastconText is a modified copy of conText 3.0.1, developed and maintained by
+FastconText is a modified copy of conText 3.0.1, developed, maintained, and contributed by
 Pedro L. Rodriguez, Arthur Spirling, Brandon Stewart, Sofia Avila, and Christopher Barrie.
 
 **Reused without changes:** Most of conText's R code, including tokenization, context
