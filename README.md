@@ -74,7 +74,7 @@ The table shows the largest absolute difference across all numeric outputs.
 Regressions, the jackknife estimator, and the ALC transform are always computed in double precision using CPU.
 On the GPU, the similarity calculations in the bootstrap and permutation steps use single precision.
 Because of the lower precision, these outputs differ slightly more from conText, but
-by no more than about 1e-6. The GPU engine uses single precision because Apple GPUs do not support float64.
+by no more than about 1e-6. The GPU engine uses single precision because Apple GPUs do not natively support float64.
 
 ## Installation
 
