@@ -143,10 +143,10 @@ extraction, and the `conText` object classes, as well as its example data and he
 computation to the new engine. The original code is kept and still runs with
 `options(FastconText.backend = "original")` and in fallback cases.
 
-**Newly written:** The closed-form regression, jackknife and permutation code
-(`R/fast_regression.R`), the bootstrap and permutation (`R/fast_bootstrap.R`),
+**Newly written:** The closed-form linear algebra for embedding regression, jackknife and permutation test,
+(`R/fast_regression.R`), the bootstrap and permutation computations of the similarity functions (`R/fast_bootstrap.R`),
 engine selection (`R/backend.R`), the C++ CPU engine and the Apple GPU engine (`src/`), the
-build scripts, the tests (`tests/`) and the benchmarks (`benchmarks/`).
+build scripts, the tests (`tests/`), and the benchmarks (`benchmarks/`).
 
 ## Development note
 
