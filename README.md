@@ -45,7 +45,7 @@ conText's `conText()` help-page example with a full jackknife and 100 permutatio
 
 Run time in seconds:
 
-| Task | conText (one core) | conText (18 cores) | FastconText, CPU | FastconText, GPU | Speedup (CPU) |
+| Task | conText (one core) | conText (18 cores) | FastconText (CPU) | FastconText (GPU) | Speedup (CPU) |
 |---|---|---|---|---|---|
 | `conText()`: full jackknife + 100 permutations | 517.6 | 54.8 | 0.062 | 0.069 | 884× |
 | `get_nns_ratio()`: 100 bootstraps + 100 permutations | 2.737 | - | 0.138 | 0.140 | 20× |
