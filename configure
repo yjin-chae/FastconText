@@ -1,0 +1,15 @@
+#!/bin/sh
+# Generate src/Makevars: Metal/MPS build on macOS, CPU-only build elsewhere.
+if [ "$(uname -s)" = "Darwin" ]; then
+  cat > src/Makevars <<'MK'
+CXX_STD = CXX17
+PKG_CXXFLAGS = -x objective-c++ -fobjc-arc
+PKG_LIBS = -framework Metal -framework MetalPerformanceShaders -framework Foundation $(BLAS_LIBS) $(FLIBS)
+MK
+else
+  cat > src/Makevars <<'MK'
+CXX_STD = CXX17
+PKG_LIBS = $(BLAS_LIBS) $(FLIBS) -lpthread
+MK
+fi
+exit 0

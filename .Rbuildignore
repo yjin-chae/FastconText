@@ -1,0 +1,6 @@
+^\.git$
+^\.gitignore$
+^benchmarks$
+^README\.md$
+^NEWS\.md$
+^LICENSE$

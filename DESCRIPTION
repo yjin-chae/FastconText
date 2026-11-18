@@ -1,0 +1,43 @@
+Package: FastconText
+Version: 0.1.0
+Title: Fast Embedding Regression for 'a la Carte' on Text (ConText) Models
+Description: A drop-in, faster implementation of the 'conText' package (version 3.0.1)
+    by Rodriguez, Spirling, Stewart, and Avila. It keeps the same functions, arguments,
+    and output objects, so existing code can run simply by replacing with `library(FastconText)`.
+    This package provides compute engines working in multi-threaded double precision C++ on any platform,
+    with an optional Apple GPU (Metal) engine on macOS. The underlying methods are the 'a la carte'
+    embeddings of Khodak et al. (2018) <doi:10.48550/arXiv.1805.05388>, the embedding regression
+    framework of Rodriguez et al. (2023) <doi:10.1017/S0003055422001228>, and the distance estimator in
+    high-dimensional space of Green et al. (2025) <doi:10.1017/pan.2024.22>.
+Authors@R: c(
+    person("Youngjin YJ", "Chae", email = "yj.chae@rutgers.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-5074-9712")),
+    person("Pedro L.", "Rodriguez", role = c("ctb", "cph"),
+           comment = c(ORCID = "0000-0003-4762-4550", "author of the original conText package")),
+    person("Arthur", "Spirling", role = "ctb",
+           comment = c(ORCID = "0000-0001-9959-1805", "author of the original conText package")),
+    person("Brandon", "Stewart", role = "ctb",
+           comment = c(ORCID = "0000-0002-7657-3089", "author of the original conText package")),
+    person("Sofia", "Avila", role = "ctb",
+           comment = c(ORCID = "0009-0007-8746-6688", "author of the original conText package")),
+    person("Christopher", "Barrie", role = "ctb",
+           comment = c(ORCID = "0000-0002-9156-990X", "contributor to the original conText package"))
+    )
+License: GPL-3
+URL: https://github.com/yjin-chae/FastconText
+BugReports: https://github.com/yjin-chae/FastconText/issues
+Depends: R (>= 3.6.0)
+Imports: dplyr, Matrix (>= 1.3-2), quanteda (>= 3.0.0), text2vec (>=
+        0.6), reshape2 (>= 1.4.4), fastDummies (>= 1.6.3), stringr (>=
+        1.4.0), tidyr (>= 1.1.3), ggplot2, broom, foreach, methods,
+        estimatr, utils, stats, parallel, tidyselect
+SystemRequirements: C++17; optional Apple GPU acceleration on macOS (Metal)
+Encoding: UTF-8
+LazyData: true
+Language: en-US
+RoxygenNote: 7.3.3
+Roxygen: list(markdown = TRUE)
+Suggests: conText, SnowballC (>= 0.7.0), hunspell, knitr, rmarkdown, formatR,
+        testthat (>= 3.0.0), doParallel, data.table, RcppParallel
+Config/testthat/edition: 3
+NeedsCompilation: yes
