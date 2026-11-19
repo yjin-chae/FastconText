@@ -10,7 +10,7 @@ so existing code can run without any further changes by importing `library(Fastc
 
 ## Purpose
 
-Embedding regression (Rodriguez, Spirling, and Stewart 2023) examines whether the meaning of a word
+Embedding regression (Rodriguez, Spirling, and Stewart 2023) examines whether the contextual meaning of a word
 differs across groups defined by covariates, such as party or gender, and quantifies the uncertainty of that
 difference with a jackknife and a permutation test. In conText, the jackknife drops one context
 (an occurrence of the target word) at a time and refits the regression, with one outcome per
