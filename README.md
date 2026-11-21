@@ -113,7 +113,7 @@ options(FastconText.threads = 8)         # CPU threads (default: all physical co
 options(FastconText.gpu_min_flops = 1e8) # size above which "auto" sends work to the GPU
 ```
 
-`"original"` runs the original conText 3.0.1 code, which is useful for checking results.
+`options(FastconText.backend = "original")` runs the original conText 3.0.1 code, which is useful for checking results.
 
 ## Citation
 
