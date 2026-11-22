@@ -3,7 +3,7 @@
 FastconText is a faster implementation of the R package
 [conText](https://github.com/prodriguezsosa/conText) (R CRAN version 3.0.1) for embedding regression
 and 'a la carte' word embeddings. It keeps the functions and arguments of the original conText package,
-so existing code can run without any further changes by importing `library(FastconText)`.
+so existing code can run without any further changes by replacing `library(conText)` with `library(FastconText)`.
 
 > FastconText is an independent package. It is not affiliated with or endorsed by the authors
 > of conText. Please cite their work (see [Citation](#citation)) when you use it.
