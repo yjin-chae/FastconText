@@ -18,6 +18,9 @@
 #' `FastconText.jackknife_rank` (`"conText"` (default) or `"na"`) controls jackknife leave-out fits that
 #' become rank-deficient: refit them with the original code so results match conText, or report `NA`
 #' standard errors and confidence intervals for the coefficients involved. Both settings warn.
+#' `FastconText.na_action` (`"conText"` (default) or `"drop"`) controls contexts with missing covariate
+#' values in `conText()`: keep them as conText 3.0.1 does, or drop them before the regression (listwise,
+#' like `lm()`'s `na.omit`), with a message giving the number dropped.
 #'
 #' @return `metal_info()`: a list with `available`, `device`, `max_buffer_bytes`, `reason`.
 #' @export
@@ -120,4 +123,13 @@ ctm_sim_reduce <- function(V, Q, nb, ng, ratio = FALSE, op = c("stats", "count")
   }
   if (op == "stats") names(out) <- c("mean", "sd", "lo", "hi") else out <- out[[1]]
   out
+}
+
+# options(FastconText.na_action): "conText" keeps contexts with missing covariates (conText 3.0.1
+# behavior); "drop" removes them before the regression, jackknife and permutations.
+ctm_na_action <- function() {
+  a <- getOption("FastconText.na_action", "conText")
+  if (!(length(a) == 1 && a %in% c("conText", "drop")))
+    stop('options(FastconText.na_action) must be "conText" or "drop"', call. = FALSE)
+  a
 }

@@ -12,6 +12,13 @@
 #' than a single target word, use `.` on the LHS e.g. `. ~ party + gender`. If you wish to use all covariates
 #' on the RHS use `immigrant ~ .`. Any `character` or `factor` covariates will automatically be converted
 #' to a set of binary (`0/1`s) indicator variables for each group, leaving the first level out of the regression.
+#' The right-hand side also accepts anything `lm()` accepts: interactions (`party * gender`,
+#' `party:gender`, `gender / party`, `(party + gender + region)^2`), term removal with `-`, and function calls
+#' (`log(x)`, `I(x^2)`, `poly(x, 2)`, `factor(year)`, or your own functions). Terms are expanded and coded as in
+#' `lm()`, with categorical variables named `variable_level` (e.g. `party_R:gender_M`). Columns that duplicate others
+#' (e.g. one cell of `party:gender` written alone, or an empty cell) are dropped with a message.
+#' Contexts with missing covariate values are kept, as in conText 3.0.1; set `na.rm = TRUE`, or
+#' `options(FastconText.na_action = "drop")`, to drop them before fitting (see [metal_info()]).
 #' @param data a quanteda `tokens-class` object with the necessary document variables. Covariates must be
 #' either binary indicator variables or "transformable" into binary indicator variables. conText will automatically
 #' transform any non-indicator variables into binary indicator variables (multiple if more than 2 classes),
@@ -24,6 +31,10 @@
 #' @param permute (logical) if TRUE, compute empirical p-values using permutation test
 #' @param num_permutations (numeric) number of permutations to use
 #' @param cluster_variable (character) name of the variable to use for clustering.
+#' @param na.rm (logical) if TRUE, drop contexts with a missing value in any covariate (or in
+#' `cluster_variable`) before the regression, jackknife and permutations (listwise deletion, like `na.omit` in
+#' `lm()`), whatever `options(FastconText.na_action)` says. If FALSE (default), the option decides: `"conText"`
+#' (default) keeps them, as conText 3.0.1 does, and `"drop"` drops them.
 #' @inheritParams tokens_context
 #'
 #' @return a `conText-class` object - a D x M matrix with D = dimensions
@@ -76,15 +87,16 @@
 #' model1@normed_coefficients
 #'
 
-conText <- function(formula, data, pre_trained, transform = TRUE, transform_matrix, jackknife=TRUE, confidence_level = 0.95, jackknife_fraction = 1, parallel=FALSE, permute = TRUE, num_permutations = 100, cluster_variable=NULL, window = 6L, valuetype = c("glob", "regex", "fixed"), case_insensitive = TRUE, hard_cut = FALSE, verbose = TRUE){
+conText <- function(formula, data, pre_trained, transform = TRUE, transform_matrix, jackknife=TRUE, confidence_level = 0.95, jackknife_fraction = 1, parallel=FALSE, permute = TRUE, num_permutations = 100, cluster_variable=NULL, window = 6L, valuetype = c("glob", "regex", "fixed"), case_insensitive = TRUE, hard_cut = FALSE, verbose = TRUE, na.rm = FALSE){
   # initial checks
 
   if(class(data)[1] != "tokens") stop("data must be of class tokens", call. = FALSE)
 
   if(!transform && !is.null(transform_matrix)) warning('Warning: transform = FALSE means transform_matrix argument was ignored. If that was not your intention, use transform = TRUE.', call. = FALSE)
 
-  if(any(grepl("factor\\(|character\\(|numeric\\(", formula))) stop('It seems you are using one of factor(), character(), numeric() in "formula" to modify a variable. \n Please modify it directly in "data" and re-run conText.', call. = FALSE) # pre-empt users using lm type notation
+  if(!ctm_formula_extended(formula[[3]]) && any(grepl("factor\\(|character\\(|numeric\\(", formula))) stop('It seems you are using one of factor(), character(), numeric() in "formula" to modify a variable. \n Please modify it directly in "data" and re-run conText.', call. = FALSE) # pre-empt users using lm type notation
   if((confidence_level >= 1 || confidence_level<=0)) stop('"confidence_level" must be a numeric value between 0 and 1.', call. = FALSE) # check confidence level is between 0 and 1
+  if(!(is.logical(na.rm) && length(na.rm) == 1 && !is.na(na.rm))) stop('"na.rm" must be TRUE or FALSE.', call. = FALSE) # FastconText
   if((jackknife_fraction > 1 || jackknife_fraction<=0)) stop('"jackknife_fraction" must be a numeric value between 0 and 1.', call. = FALSE) # check jackknife_fraction is between 0 and 1
 
   if (parallel){
@@ -117,7 +129,14 @@ conText <- function(formula, data, pre_trained, transform = TRUE, transform_matr
   #----------------------
 
   # extract covariates names
-  if(formula[[3]] == "."){covariates <- names(docvars)}else{ # follows lm convention, if DV = ., regress on all variables in data
+  inter_design <- NULL
+  na_drop <- na.rm || ctm_na_action() == "drop" # FastconText: na.rm = TRUE, or options(FastconText.na_action = "drop")
+  keep_rows <- NULL
+  if(ctm_formula_extended(formula[[3]])){ # FastconText: lm()-style terms (see R/formula_terms.R)
+    inter_design <- ctm_formula_design(formula[[3]], docvars, env = environment(formula), cluster_variable = cluster_variable, na_drop = na_drop)
+    keep_rows <- attr(inter_design, "keep_rows")
+    covariates <- names(inter_design)
+  }else if(formula[[3]] == "."){covariates <- names(docvars)}else{ # follows lm convention, if DV = ., regress on all variables in data
     covariates <- setdiff(stringr::str_squish(unlist(strsplit(as.character(formula[[3]]), '+', fixed = TRUE))), '') # to allow for phrase DVs
     covs_not_in_data <- covariates[!(covariates %in% names(docvars))]
     if(length(covs_not_in_data) > 0) stop("the following covariates could not be found in the data: ", paste0(covs_not_in_data, collapse = ", "))
@@ -127,7 +146,17 @@ conText <- function(formula, data, pre_trained, transform = TRUE, transform_matr
     cluster_variable <- as.character(cluster_variable)
     covariates <- c(covariates, cluster_variable)
   }
+  if (!is.null(inter_design)) {
+    cov_vars <- inter_design
+    if (!is.null(cluster_variable)) cov_vars[[cluster_variable]] <- if (is.null(keep_rows)) docvars[[cluster_variable]] else docvars[[cluster_variable]][keep_rows]
+    numeric_vars <- names(cov_vars)
+    non_numeric_vars <- character(0)
+  } else {
   cov_vars <- docvars %>% dplyr::select(dplyr::all_of(covariates))
+  if (na_drop) { # FastconText: listwise deletion before dummifying, so emptied levels get no column
+    ok <- stats::complete.cases(cov_vars)
+    if (!all(ok)) { keep_rows <- ok; cov_vars <- droplevels(cov_vars[ok, , drop = FALSE]) }
+  }
 
   # check which covariates are binary dummy variables
   numeric_vars <- c(names(which(sapply(cov_vars, is.numeric))), names(which(sapply(cov_vars, is.integer))))
@@ -138,7 +167,15 @@ conText <- function(formula, data, pre_trained, transform = TRUE, transform_matr
   if(length(non_numeric_vars)>0){
     cov_vars <- fastDummies::dummy_cols(cov_vars, select_columns = non_numeric_vars, remove_first_dummy = TRUE, remove_selected_columns = TRUE, ignore_na = TRUE)
   }
+  }
 
+  if (!is.null(keep_rows)) { # FastconText: na.rm = TRUE or options(FastconText.na_action = "drop")
+    if (!any(keep_rows)) stop("every context has a missing covariate value; nothing left to fit.", call. = FALSE)
+    message("conText: dropped ", sum(!keep_rows), " of ", length(keep_rows),
+            " contexts with missing covariate values (", if (na.rm) "na.rm = TRUE" else "options(FastconText.na_action = \"drop\")", ").")
+    toks <- toks[which(keep_rows)]
+    rownames(cov_vars) <- NULL
+  }
   # create new corpus
   quanteda::docvars(toks) <- cov_vars
 
@@ -159,6 +196,7 @@ conText <- function(formula, data, pre_trained, transform = TRUE, transform_matr
   }
 
   full_sample_out <- run_ols(Y = Y, X = X, ids=ids)
+  if (!is.null(inter_design)) full_sample_out <- ctm_clean_terms(full_sample_out, attr(inter_design, "design_names"))
   # outputs
   beta_coefficients <- full_sample_out$betas
 

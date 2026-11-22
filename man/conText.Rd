@@ -21,7 +21,8 @@ conText(
   valuetype = c("glob", "regex", "fixed"),
   case_insensitive = TRUE,
   hard_cut = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  na.rm = FALSE
 )
 }
 \arguments{
@@ -31,7 +32,12 @@ conText(
 you can use \code{.} on RHS, e.g.\code{immigrant ~ .}. If you wish to treat the full document as you DV, rather
 than a single target word, use \code{.} on the LHS e.g. \code{. ~ party + gender}. If you wish to use all covariates
 on the RHS use \code{immigrant ~ .}. Any \code{character} or \code{factor} covariates will automatically be converted
-to a set of binary (\code{0/1}s) indicator variables for each group, leaving the first level out of the regression.}
+to a set of binary (\code{0/1}s) indicator variables for each group, leaving the first level out of the regression.
+The right-hand side also accepts anything \code{lm()} accepts, such as interactions (\code{party * gender},
+\code{party:gender}, \code{gender / party}, \code{(party + gender + region)^2}), and function calls like
+(\code{log(x)}, \code{I(x^2)}, and \code{poly(x, 2)}).
+Contexts with missing covariate values are retained by default, as in conText 3.0.1; set \code{na.rm = TRUE}, or
+\code{options(FastconText.na_action = "drop")}, to drop them before fitting (see \code{\link{metal_info}}).}
 
 \item{data}{a quanteda \code{tokens-class} object with the necessary document variables. Covariates must be
 either binary indicator variables or "transformable" into binary indicator variables. conText will automatically
@@ -77,6 +83,11 @@ then context will have \code{window} tokens rather than \code{window} x 2)}
 
 \item{verbose}{(logical) - if TRUE, report the documents that had
 no overlapping features with the pretrained embeddings provided.}
+
+\item{na.rm}{(logical) if TRUE, drop contexts with a missing value in any covariate (or in
+\code{cluster_variable}) before the regression, jackknife and permutations (listwise deletion, like \code{na.omit} in
+\code{lm()}), whatever \code{options(FastconText.na_action)} says. If FALSE (default), the option decides: \code{"conText"}
+(default) keeps them, as conText 3.0.1 does, and \code{"drop"} drops them.}
 }
 \value{
 a \code{conText-class} object - a D x M matrix with D = dimensions

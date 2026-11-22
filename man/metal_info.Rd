@@ -22,6 +22,10 @@ the original code, so results match conText 3.0.1. With \code{"na"} the standard
 intervals of the coefficients involved in the collinearity are reported as \code{NA}, because their
 leave-out estimates measure a different quantity. Both settings issue a warning naming the coefficients
 and category sizes involved.
+
+\code{FastconText.na_action} controls contexts with missing covariate values in \code{conText()}. With
+\code{"conText"} (default) they are retained, as in conText 3.0.1. With \code{"drop"} they are removed before
+the regression and jackknife and permutations (listwise deletion, like \code{na.omit} in \code{lm()}).
 }
 \examples{
 metal_info()
