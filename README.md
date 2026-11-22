@@ -8,6 +8,15 @@ so existing code can run without any further changes by importing `library(Fastc
 > FastconText is an independent package. It is not affiliated with or endorsed by the authors
 > of conText. Please cite their work (see [Citation](#citation)) when you use it.
 
+## Latest update (version 0.2.0)
+
+* `conText()` now accepts `lm()`-style formulas, including interactions such as `party * gender`
+  and function calls such as `log(x)` and `poly(x, 2)`.
+* A new `na.rm` argument in `conText()`, or `options(FastconText.na_action = "drop")`, drops contexts with missing
+  covariate values before fitting. By default they are retained, as in conText 3.0.1, and run with the original code. It is slower but will match the conText output; dropping NAs will be faster but will no longer be reproducible with conText.
+
+See [NEWS.md](NEWS.md) for the full list of changes.
+
 ## Purpose
 
 Embedding regression (Rodriguez, Spirling, and Stewart 2023) examines whether the contextual meaning of a word
